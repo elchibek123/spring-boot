@@ -1,0 +1,21 @@
+spring:
+    application:
+        name: demo
+    datasource:
+        password: postgresql
+        url: jdbc:postgresql://localhost:5432/spring
+        username: postgres
+    jpa:
+        hibernate:
+            ddl-auto: update
+        show-sql: true
+    security:
+        jwt:
+            secret: java15-2024
+            access-token-validity-in-seconds: 86400
+            refresh-token-validity-in-seconds: 604800
+
+server:
+    port: 8080
+    error:
+        include-message: always
