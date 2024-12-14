@@ -40,7 +40,7 @@ public class JwtService {
         JWTVerifier jwtVerifier = JWT.require(algorithm).build();
         DecodedJWT verify = jwtVerifier.verify(token);
         String email = verify.getClaim("email").asString();
-        return userRepository.findUserByEmailEqualsIgnoreCase(email);
+        return userRepository.findByEmailOrThrow(email);
     }
 
     public Algorithm getAlgorithm() {

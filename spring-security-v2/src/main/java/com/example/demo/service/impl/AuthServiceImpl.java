@@ -6,6 +6,7 @@ import com.example.demo.dto.request.UserRequest;
 import com.example.demo.dto.response.AuthResponse;
 import com.example.demo.dto.response.JwtToken;
 import com.example.demo.enums.Role;
+import com.example.demo.exception.BadRequestException;
 import com.example.demo.exception.NotFoundException;
 import com.example.demo.exception.PasswordInvalidException;
 import com.example.demo.model.User;
@@ -25,6 +26,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse signUp(UserRequest userRequest) {
         User user = new User();
+        if (userRequest.name() == null || userRequest.name().isEmpty()) {
+            throw new BadRequestException("Name is required");
+        }
         user.setName(userRequest.name());
         user.setEmail(userRequest.email());
         user.setRole(Role.USER);
@@ -43,7 +47,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public JwtToken login(AuthRequest authRequest) {
-        User user = userRepository.findUserByEmailEqualsIgnoreCase(authRequest.username());
+        User user = userRepository.findByEmailOrThrow(authRequest.username());
         if (user == null) throw new NotFoundException("User with email "+authRequest.username()+" not found");
         boolean matches = passwordEncoder.matches(authRequest.password(), user.getPassword());
         if (!matches) throw new PasswordInvalidException("Password incorrect!");

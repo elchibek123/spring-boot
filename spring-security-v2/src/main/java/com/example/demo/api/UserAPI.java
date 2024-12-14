@@ -4,8 +4,10 @@ import com.example.demo.dto.response.UserProfileResponse;
 import com.example.demo.model.User;
 import com.example.demo.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,6 +25,12 @@ public class UserAPI {
     @GetMapping
     public List<User> getUsers() {
         return userService.findAll();
+    }
+
+//    @Secured("ADMIN")
+    @GetMapping("/{id}")
+    public ResponseEntity<UserProfileResponse> getUserProfileById(@PathVariable Long id) {
+        return userService.findById(id);
     }
 
     //    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")

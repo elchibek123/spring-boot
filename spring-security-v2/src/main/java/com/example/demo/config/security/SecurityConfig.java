@@ -44,7 +44,7 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return userRepository::findUserByEmailEqualsIgnoreCase;
+        return userRepository::findByEmailOrThrow;
     }
 
     @Bean
