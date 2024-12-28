@@ -43,18 +43,12 @@ public class AuthServiceImpl implements AuthService {
     public SimpleResponseMessage register(RegisterRequest request) {
         userRequestValidator.validate(request, RegisterRequest::email);
 
-        try {
-            User user = request.toEntity(new User(), passwordEncoder);
+        User user = request.toEntity(new User(), passwordEncoder);
 
-            user.setRole(Role.USER);
+        user.setRole(Role.USER);
 
-            userRepository.save(user);
+        userRepository.save(user);
 
-            return new SimpleResponseMessage("User registered successfully!");
-        } catch (ValidationException e) {
-            throw new ValidationException(ValidationExceptionType.EMAIL_ALREADY_EXISTS);
-        } catch (Exception e) {
-            throw new RuntimeException("Error during user registration", e);
-        }
+        return new SimpleResponseMessage("User registered successfully!");
     }
 }

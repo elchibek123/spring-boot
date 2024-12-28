@@ -46,7 +46,7 @@ public class RoleRequestServiceImpl implements RoleRequestService {
 
         roleRequestValidator.validate(request, user);
 
-        java15.projectrestaurant.model.RoleRequest roleRequest = request.toEntity(new java15.projectrestaurant.model.RoleRequest());
+        java15.projectrestaurant.model.RoleRequest roleRequest = request.toEntity(new RoleRequest());
         roleRequest.setUser(user);
         roleRequest.setRestaurant(restaurant);
         roleRequest.setStatus(RoleRequestStatus.PENDING);

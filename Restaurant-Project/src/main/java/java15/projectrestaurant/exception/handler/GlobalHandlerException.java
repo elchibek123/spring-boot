@@ -78,7 +78,7 @@ public class GlobalHandlerException {
                 cause instanceof com.fasterxml.jackson.databind.exc.InvalidFormatException) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body("Invalid value provided for RestaurantType. Accepted values are: " +
+                    .body("Invalid value provided. Accepted values are: " +
                             Arrays.toString(RestaurantType.values()));
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request body.");
