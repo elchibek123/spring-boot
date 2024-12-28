@@ -1,4 +1,4 @@
-package com.example.demo.repository;
+fpackage com.example.demo.repository;
 
 import com.example.demo.dto.response.UserProfileResponse;
 import com.example.demo.exception.NotFoundException;
