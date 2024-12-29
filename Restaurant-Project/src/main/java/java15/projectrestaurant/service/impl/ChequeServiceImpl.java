@@ -32,6 +32,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +46,7 @@ public class ChequeServiceImpl implements ChequeService {
     private final RestaurantRepository restaurantRepository;
 
     @Override
+    @Transactional
     public ChequeView createCheque(ChequeRequest request) {
         GenericRequestValidator.validateField(request, request.menuItemIds(), "MenuItem IDs");
 
@@ -53,12 +55,26 @@ public class ChequeServiceImpl implements ChequeService {
             throw new BadRequestException("One or more MenuItem IDs are invalid.");
         }
 
+        List<MenuItem> stopListedItems = menuItems.stream()
+                .filter(MenuItem::isStopListed)
+                .toList();
+
+        if (!stopListedItems.isEmpty()) {
+            String stopListedItemNames = stopListedItems.stream()
+                    .map(item -> String.format("'%s'", item.getName()))
+                    .collect(Collectors.joining(", "));
+
+            throw new BadRequestException(
+                    String.format("Cannot create cheque. The following items are currently in StopList: %s",
+                            stopListedItemNames)
+            );
+        }
+
         String username = SecurityUtils.getCurrentUser();
         User user = userRepository.findByEmailOrThrow(username);
 
         Cheque cheque = new Cheque();
         cheque.setUser(user);
-
         cheque.setMenuItems(new ArrayList<>(menuItems));
 
         menuItems.forEach(menuItem -> {
@@ -89,29 +105,50 @@ public class ChequeServiceImpl implements ChequeService {
     }
 
     @Override
+    @Transactional
     public ChequeView updateCheque(Long id, ChequeRequest request) {
-        GenericRequestValidator.validateField(request, request.menuItemIds(), "MenuItem IDs");
+        GenericRequestValidator.validateField(request, id, "ID");
 
         List<MenuItem> menuItems = menuItemRepository.findAllById(request.menuItemIds());
         if (menuItems.size() != request.menuItemIds().size()) {
             throw new BadRequestException("One or more MenuItem IDs are invalid.");
         }
 
+        List<MenuItem> stopListedItems = menuItems.stream()
+                .filter(MenuItem::isStopListed)
+                .toList();
+
+        if (!stopListedItems.isEmpty()) {
+            String stopListedItemNames = stopListedItems.stream()
+                    .map(item -> String.format("'%s'", item.getName()))
+                    .collect(Collectors.joining(", "));
+
+            throw new BadRequestException(
+                    String.format("Cannot update cheque. The following items are currently in StopList: %s",
+                            stopListedItemNames)
+            );
+        }
+
         Cheque cheque = chequeRepository.findByIdOrThrow(id);
 
-        cheque.setMenuItems(menuItems);
+        if (cheque.getMenuItems() != null) {
+            cheque.getMenuItems().forEach(menuItem -> menuItem.getCheques().remove(cheque));
+        }
 
-        BigDecimal newPriceAverage = menuItems.stream()
-                .map(MenuItem::getPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .divide(BigDecimal.valueOf(menuItems.size()), RoundingMode.HALF_UP);
+        cheque.setMenuItems(new ArrayList<>(menuItems));
+        menuItems.forEach(menuItem -> {
+            if (menuItem.getCheques() == null) {
+                menuItem.setCheques(new ArrayList<>());
+            }
+            menuItem.getCheques().add(cheque);
+        });
+
+        BigDecimal newPriceAverage = calculateAveragePrice(menuItems);
         cheque.setPriceAverage(newPriceAverage);
 
         Cheque savedCheque = chequeRepository.save(cheque);
-
         return chequeViewMapper.toView(savedCheque);
     }
-
 
     @Override
     @Transactional
@@ -123,13 +160,26 @@ public class ChequeServiceImpl implements ChequeService {
         Cheque cheque = chequeRepository.findByIdOrThrow(id);
 
         if (cheque.getMenuItems() != null) {
-            cheque.getMenuItems().forEach(menuItem -> menuItem.getCheques().remove(cheque));
+            cheque.getMenuItems().forEach(menuItem -> {
+                menuItem.getCheques().remove(cheque);
+                menuItem.setCheques(
+                        menuItem.getCheques().stream()
+                                .filter(c -> !c.getId().equals(cheque.getId()))
+                                .collect(Collectors.toList())
+                );
+            });
+            cheque.setMenuItems(new ArrayList<>());
         }
 
         User user = cheque.getUser();
-
         if (user != null) {
             user.getCheques().remove(cheque);
+            user.setCheques(
+                    user.getCheques().stream()
+                            .filter(c -> !c.getId().equals(cheque.getId()))
+                            .collect(Collectors.toList())
+            );
+            cheque.setUser(null);
         }
 
         chequeRepository.delete(cheque);
