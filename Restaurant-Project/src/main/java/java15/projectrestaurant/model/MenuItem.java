@@ -36,4 +36,8 @@ public class MenuItem extends BaseEntity {
     @JsonIgnore
     @ManyToMany(mappedBy = "menuItems")
     private List<Cheque> cheques;
+
+    public boolean isStopListed() {
+        return stopList != null && stopList.isActive();
+    }
 }

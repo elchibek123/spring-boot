@@ -67,7 +67,7 @@ public class MenuItemServiceImpl implements MenuItemService {
     public PaginationResponse<MenuItemView> getMenuItems(Long restaurantId, int pageNumber, int pageSize) {
         PageRequest pageRequest = PageRequest.of(pageNumber - 1, pageSize);
 
-        Page<MenuItemView> menuItemPage = menuItemRepository.findAllByRestaurantId(restaurantId, pageRequest)
+        Page<MenuItemView> menuItemPage = menuItemRepository.findAllAvailableByRestaurantId(restaurantId, pageRequest)
                 .map(menuItemViewMapper::toView);
 
         return new PaginationResponse<MenuItemView>().setValuesTo(menuItemPage);
@@ -157,7 +157,7 @@ public class MenuItemServiceImpl implements MenuItemService {
     public PaginationResponse<MenuItemView> searchMenuItems(String query, int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
 
-        Page<MenuItem> menuItemsPage = menuItemRepository.searchByQuery(query, pageable);
+        Page<MenuItem> menuItemsPage = menuItemRepository.searchAvailableByQuery(query, pageable);
 
         Page<MenuItemView> menuItemPage = menuItemsPage.map(menuItemViewMapper::toView);
 
@@ -166,11 +166,13 @@ public class MenuItemServiceImpl implements MenuItemService {
 
     @Override
     public PaginationResponse<MenuItemView> sortByPrice(int pageNumber, int pageSize, String sortDirection) {
-        Sort sort = "desc".equalsIgnoreCase(sortDirection) ? Sort.by(Sort.Order.desc("price")) : Sort.by(Sort.Order.asc("price"));
+        Sort sort = "desc".equalsIgnoreCase(sortDirection) ?
+                Sort.by(Sort.Order.desc("price")) :
+                Sort.by(Sort.Order.asc("price"));
 
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sort);
 
-        Page<MenuItem> menuItemsPage = menuItemRepository.findAll(pageable);
+        Page<MenuItem> menuItemsPage = menuItemRepository.findAllAvailable(pageable);
 
         Page<MenuItemView> menuItemViewsPage = menuItemsPage.map(menuItemViewMapper::toView);
 
@@ -183,7 +185,7 @@ public class MenuItemServiceImpl implements MenuItemService {
 
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
 
-        Page<MenuItem> menuItemsPage = menuItemRepository.findByIsVegetarian(vegetarian, pageable);
+        Page<MenuItem> menuItemsPage = menuItemRepository.findAvailableByIsVegetarian(vegetarian, pageable);
 
         Page<MenuItemView> menuItemViewsPage = menuItemsPage.map(menuItemViewMapper::toView);
 

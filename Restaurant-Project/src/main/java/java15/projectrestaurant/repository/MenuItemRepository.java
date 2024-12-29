@@ -13,8 +13,6 @@ import org.springframework.stereotype.Repository;
 public interface MenuItemRepository extends JpaRepository<MenuItem, Long> {
     boolean existsByNameAndRestaurantIdAndSubcategoryId(String name, Long restaurantId, Long subcategoryId);
 
-    Page<MenuItem> findAllByRestaurantId(Long restaurantId, Pageable pageable);
-
     default MenuItem findByIdOrThrow(Long id) {
         return findById(id).orElseThrow(
             () -> new NotFoundException("MenuItem with ID: " + id + " not found")
@@ -23,9 +21,20 @@ public interface MenuItemRepository extends JpaRepository<MenuItem, Long> {
 
     boolean existsByNameAndRestaurantIdAndSubcategoryIdAndIdNot(String name, Long restaurantId, Long subcategoryId, Long id);
 
-    @Query("SELECT m FROM MenuItem m WHERE m.name ILIKE %:query%")
-    Page<MenuItem> searchByQuery(@Param("query") String query, Pageable pageable);
+    @Query("SELECT m FROM MenuItem m WHERE m.restaurant.id = :restaurantId " +
+            "AND m.id NOT IN (SELECT s.menuItem.id FROM StopList s WHERE s.active = true)")
+    Page<MenuItem> findAllAvailableByRestaurantId(@Param("restaurantId") Long restaurantId, Pageable pageable);
 
-    @Query("SELECT m FROM MenuItem m WHERE m.isVegetarian = :isVegetarian")
-    Page<MenuItem> findByIsVegetarian(@Param("isVegetarian") boolean isVegetarian, Pageable pageable);
+    @Query("SELECT m FROM MenuItem m WHERE " +
+            "LOWER(m.name) LIKE LOWER(CONCAT('%', :query, '%')) " +
+            "AND m.id NOT IN (SELECT s.menuItem.id FROM StopList s WHERE s.active = true)")
+    Page<MenuItem> searchAvailableByQuery(@Param("query") String query, Pageable pageable);
+
+    @Query("SELECT m FROM MenuItem m WHERE " +
+            "m.id NOT IN (SELECT s.menuItem.id FROM StopList s WHERE s.active = true)")
+    Page<MenuItem> findAllAvailable(Pageable pageable);
+
+    @Query("SELECT m FROM MenuItem m WHERE m.isVegetarian = :vegetarian " +
+            "AND m.id NOT IN (SELECT s.menuItem.id FROM StopList s WHERE s.active = true)")
+    Page<MenuItem> findAvailableByIsVegetarian(@Param("vegetarian") boolean vegetarian, Pageable pageable);
 }

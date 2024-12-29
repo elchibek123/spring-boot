@@ -10,16 +10,17 @@ import java15.projectrestaurant.enums.RoleRequestStatus;
 import java15.projectrestaurant.service.RoleRequestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/requests")
+@RequestMapping("/api/roleRequests")
 @Tag(name = "Role Request Controller", description = "API for managing user role requests")
 @RequiredArgsConstructor
 public class RoleRequestController {
     private final RoleRequestService roleRequestService;
 
+    @Secured("USER")
     @PostMapping("/request")
     public ResponseEntity<SimpleResponseMessage> requestRole(
             @RequestParam Long restaurantId,
@@ -27,8 +28,8 @@ public class RoleRequestController {
         return ResponseEntity.ok(roleRequestService.requestRole(restaurantId, request));
     }
 
+    @Secured("ADMIN")
     @PostMapping("/{requestId}/process")
-    @PreAuthorize("hasRole('ADMIN')")
     public SimpleResponseMessage processRequest(
             @PathVariable Long requestId,
             @RequestParam RoleRequestStatus decision,
@@ -36,8 +37,8 @@ public class RoleRequestController {
         return roleRequestService.processRequest(requestId, decision, adminComment);
     }
 
+    @Secured("ADMIN")
     @GetMapping("/pending")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PaginationResponse<RoleRequestView>> getPendingRequests(
             @RequestParam Long restaurantId,
             @RequestParam(defaultValue = "1") int pageNumber,
@@ -45,6 +46,7 @@ public class RoleRequestController {
         return ResponseEntity.ok(roleRequestService.getPendingRequests(restaurantId, pageNumber, pageSize));
     }
 
+    @Secured("USER")
     @GetMapping("/myRequests")
     public ResponseEntity<PaginationResponse<RoleRequestView>> getUserRequests(
             @RequestParam(defaultValue = "1") int pageNumber,

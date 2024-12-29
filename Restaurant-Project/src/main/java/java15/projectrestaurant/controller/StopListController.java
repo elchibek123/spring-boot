@@ -53,4 +53,12 @@ public class StopListController {
     public StopListView getById(@PathVariable Long id) {
         return stopListService.getById(id);
     }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CHEF')")
+    @PatchMapping("/{id}/deactivate")
+    public ResponseEntity<StopListView> deactivateStopList(
+            @PathVariable Long id) {
+        StopListView deactivatedStopList = stopListService.deactivateStopList(id);
+        return ResponseEntity.ok(deactivatedStopList);
+    }
 }

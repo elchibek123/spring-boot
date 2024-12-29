@@ -14,4 +14,6 @@ public interface StopListService {
     PaginationResponse<StopListView> getStopLists(int pageNumber, int pageSize);
 
     StopListView getById(Long id);
+
+    StopListView deactivateStopList(Long id);
 }
