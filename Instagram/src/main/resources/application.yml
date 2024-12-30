@@ -1,0 +1,20 @@
+spring:
+    application:
+        name: Instagram
+    datasource:
+        password: postgresql
+        url: jdbc:postgresql://localhost:5432/spring
+        username: postgres
+    jpa:
+        hibernate:
+            ddl-auto: update
+        show-sql: true
+    security:
+        jwt:
+            secret_key: java15-jwt-token
+            expiration: 604800
+
+server:
+    port: 8080
+    error:
+        include-message: always
