@@ -11,6 +11,8 @@ import lombok.Setter;
 @Table(name = "user_infos")
 public class UserInfo extends BaseEntity {
     private String fullName;
+
+    @Column(length = 1000)
     private String biography;
 
     @Enumerated(EnumType.STRING)

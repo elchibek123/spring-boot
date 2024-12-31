@@ -7,9 +7,9 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
 @Getter
 @Setter
+@Entity
 @Table(name = "followers")
 public class Follower extends BaseEntity {
     @ElementCollection
