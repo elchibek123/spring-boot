@@ -11,7 +11,7 @@ public class UrlListValidator implements ConstraintValidator<URLList, List<Strin
     @Override
     public boolean isValid(List<String> value, ConstraintValidatorContext context) {
         if (value == null || value.isEmpty()) {
-            return true; // Or handle as needed
+            return true;
         }
         for (String url : value) {
             if (url == null || !url.matches("^(https?|ftp)://[^\s/$.?#].[^\s]*$")) {
