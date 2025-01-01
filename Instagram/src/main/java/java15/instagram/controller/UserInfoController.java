@@ -1,6 +1,5 @@
 package java15.instagram.controller;
 
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import java15.instagram.model.dto.request.UpdateUserInfoRequest;
 import java15.instagram.model.dto.request.UserInfoRequest;
@@ -10,12 +9,13 @@ import java15.instagram.service.UserInfoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/user-info")
 @RequiredArgsConstructor
-@RolesAllowed("USER")
+@PreAuthorize("isAuthenticated()")
 public class UserInfoController {
     private final UserInfoService userInfoService;
 

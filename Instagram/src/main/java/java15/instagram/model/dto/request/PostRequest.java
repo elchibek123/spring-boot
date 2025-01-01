@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import java15.instagram.model.entity.Image;
 import java15.instagram.model.entity.Post;
 import java15.instagram.model.entity.User;
-import org.hibernate.validator.constraints.URL;
+import java15.instagram.service.validation.annotation.URLList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ public record PostRequest(
         String caption,
 
         @NotNull
-        @URL(message = "Must be a valid URL")
+        @URLList
         List<String> imageUrls
 ) {
     public Post toEntity(User user) {

@@ -9,7 +9,9 @@ import java15.instagram.exception.AuthenticationException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -35,13 +37,18 @@ public class JwtFilter extends OncePerRequestFilter {
                 User user = jwtService.verifyToken(token);
 
                 if (user != null) {
-                    SecurityContextHolder
-                            .getContext()
-                            .setAuthentication(
-                                    new UsernamePasswordAuthenticationToken(
-                                            user.getUsername(),
-                                            null,
-                                            user.getAuthorities()));
+                    UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                            user.getUsername(),
+                            "",
+                            user.getAuthorities()
+                    );
+
+                    Authentication authentication = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }
         } catch (AuthenticationException e) {
@@ -49,6 +56,7 @@ public class JwtFilter extends OncePerRequestFilter {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication Failed: " + e.getMessage());
             return;
         }
+
         filterChain.doFilter(request, response);
     }
 }

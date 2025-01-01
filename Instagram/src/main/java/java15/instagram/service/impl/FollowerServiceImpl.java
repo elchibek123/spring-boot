@@ -1,6 +1,6 @@
 package java15.instagram.service.impl;
 
-import java15.instagram.model.dto.response.UserProfileView;
+import java15.instagram.model.dto.response.UserView;
 import java15.instagram.model.entity.Follower;
 import java15.instagram.model.entity.User;
 import java15.instagram.repository.FollowerRepository;
@@ -46,7 +46,7 @@ public class FollowerServiceImpl implements FollowerService {
     }
 
     @Override
-    public List<UserProfileView> getAllSubscribersByUserId(Long userId) {
+    public List<UserView> getAllSubscribersByUserId(Long userId) {
         Follower follower = followerRepository.findByUserId(userId);
 
         if (follower == null || follower.getSubscribers().isEmpty()) {
@@ -58,12 +58,12 @@ public class FollowerServiceImpl implements FollowerService {
         List<User> subscribers = userRepository.findAllById(subscriberIds);
 
         return subscribers.stream()
-                .map(UserProfileView::fromUser)
+                .map(UserView::fromUser)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<UserProfileView> getAllSubscriptionsByUserId(Long userId) {
+    public List<UserView> getAllSubscriptionsByUserId(Long userId) {
         Follower follower = followerRepository.findByUserId(userId);
 
         if (follower == null || follower.getSubscriptions().isEmpty()) {
@@ -75,7 +75,7 @@ public class FollowerServiceImpl implements FollowerService {
         List<User> subscriptions = userRepository.findAllById(subscriptionIds);
 
         return subscriptions.stream()
-                .map(UserProfileView::fromUser)
+                .map(UserView::fromUser)
                 .collect(Collectors.toList());
     }
 

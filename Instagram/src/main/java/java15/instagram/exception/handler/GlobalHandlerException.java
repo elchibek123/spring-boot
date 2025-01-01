@@ -54,6 +54,26 @@ public class GlobalHandlerException {
                 .build();
     }
 
+    @ExceptionHandler(AuthenticationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ExceptionResponse getUnauthorizedException(AuthenticationException e) {
+        return ExceptionResponse.builder()
+                .httpStatus(HttpStatus.UNAUTHORIZED)
+                .className(e.getClass().getName())
+                .message(e.getMessage())
+                .build();
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ExceptionResponse getUnauthorizedException(UnauthorizedException e) {
+        return ExceptionResponse.builder()
+                .httpStatus(HttpStatus.UNAUTHORIZED)
+                .className(e.getClass().getName())
+                .message(e.getMessage())
+                .build();
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleValidationException(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
